@@ -84,3 +84,5 @@
 
 ;;reload
 (global-set-key [f12] 'eval-buffer)
+
+(setq ring-bell-function 'ignore)

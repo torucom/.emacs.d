@@ -1,7 +1,7 @@
 ;;; -*- coding: utf-8 -*-
-(("/Users/torucom/.emacs.d/.gitignore" . 517)
+(("/Users/torucom/.emacs.d/init.el" . 2560)
+ ("/Users/torucom/.emacs.d/.gitignore" . 517)
  ("/Users/torucom/.emacs.d/README.md" . 235)
- ("/Users/torucom/.emacs.d/init.el" . 2027)
  ("/Users/torucom/.emacs.d/elpa/markdown-mode-20190305.319/markdown-mode-autoloads.el" . 1171)
  ("/Users/torucom/.emacs.d/elpa/mark-0.3/mark-autoloads.el" . 1280)
  ("/Users/torucom/.emacs.d/elpa/fm-20130612.1/fm-autoloads.el" . 390)
