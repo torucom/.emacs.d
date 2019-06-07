@@ -1,7 +1,3 @@
 ;;; -*- coding: utf-8 -*-
-(("/Users/mocurot/.emacs.d/init.el" . 1104)
- ("/Users/mocurot/.emacs.d/elpa/all-the-icons-20190320.1809/all-the-icons-autoloads.el" . 2223)
- ("/Users/mocurot/.emacs.d/elpa/memoize-20180614.1930/memoize-autoloads.el" . 416)
- ("/Users/mocurot/.emacs.d/elpa/neotree-20181121.2026/neotree-autoloads.el" . 1355)
- ("/Users/mocurot/.emacs.d/elpa/emmet-mode-20180613.341/emmet-mode-autoloads.el" . 1691)
- ("/Users/mocurot/.emacs.d/elpa/monokai-theme-20180730.1329/monokai-theme-autoloads.el" . 595))
+(("/Users/torucom/.emacs.d/init.el" . 1130)
+ ("/Users/torucom/.emacs.d/elpa/all-the-icons-dired-20170418.2131/all-the-icons-dired-autoloads.el" . 636))
