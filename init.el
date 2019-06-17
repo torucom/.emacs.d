@@ -1,9 +1,9 @@
-;; Package repository
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives  '("marmalade" . "http://marmalade-repo.org/packages/") t)
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
 (custom-set-variables
@@ -11,29 +11,58 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(blink-cursor-mode nil)
- '(doom-modeline-buffer-file-name-style (quote truncate-with-project) t)
- '(doom-modeline-icon t t)
- '(doom-modeline-major-mode-icon nil t)
- '(doom-modeline-minor-modes nil t)
  '(doom-themes-enable-bold t)
  '(doom-themes-enable-italic t)
  '(package-selected-packages
    (quote
-    (golden-ratio company ivy counsel projectile-rails doom-themes powerline rainbow-delimiters which-key tabbar helm projectile auto-complete helm-config dashboard markdown-mode mark use-package doom-modeline nyan-mode atom-one-dark-theme all-the-icons-dired all-the-icons neotree emmet-mode monokai-theme)))
- '(save-place-mode t)
- '(show-paren-mode t)
+    (rainbow-delimiters nyan-mode doom-modeline powerline all-the-icons-ivy neotree emmet-mode dashboard yasnippet-snippets yasnippet company use-package doom-themes counsel ivy)))
  '(tool-bar-mode nil))
-
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(doom-modeline-bar ((t (:background "#6272a4")))))
-;; Set theme
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/atom-one-dark-theme/")
-;; (load-theme 'atom-one-dark t)
+
+;; 行間調整
+(setq-default line-spacing 2)
+
+;; ウィンドウ移動
+(global-set-key (kbd "C-c <left>")  'windmove-left)
+(global-set-key (kbd "C-c <down>")  'windmove-down)
+(global-set-key (kbd "C-c <up>")    'windmove-up)
+(global-set-key (kbd "C-c <right>") 'windmove-right)
+
+;;F12でeval-buffer
+(global-set-key [f12] 'eval-buffer)
+(setq ring-bell-function 'ignore)
+(setq inhibit-startup-message t)
+
+;; --------------------------------------------------------------------- ;;
+
+;; use-package設定
+(eval-when-compile (require 'use-package))
+(setq use-package-verbose t)
+(setq use-package-minimum-reported-time 0.001)
+
+;; dashboard設定
+(require 'dashboard)
+(setq dashboard-startup-banner "~/.emacs.d/images/exite.gif")
+(setq dashboard-banner-logo-title
+  (concat "GNU Emacs " emacs-version " kernel "
+    (car (split-string (shell-command-to-string "uname -r")))  " x86_64 Mac OS X "
+    (car(split-string (shell-command-to-string "sw_vers -productVersion") "-"))
+  )
+)
+(setq dashboard-items '((recents  . 15)
+       (bookmarks . 5)))
+(setq dashboard-set-heading-icons t)
+(setq dashboard-set-file-icons t)
+(dashboard-modify-heading-icons '((recents . "file-text")
+                                  (bookmarks . "book")))
+(dashboard-setup-startup-hook)
+
+;; doom-theme設定
 (use-package doom-themes
   :custom
   (doom-themes-enable-italic t)
@@ -45,170 +74,42 @@
   (doom-themes-neotree-config)
   (doom-themes-org-config))
 
-;; use-package
-(eval-when-compile (require 'use-package))
-(setq use-package-verbose t)
-(setq use-package-minimum-reported-time 0.001)
-
-;; helm
-(require 'helm-config)
-(helm-mode 1)
-
-;; tabbar
-(require 'tabbar)
-(tabbar-mode)
-(setq tabbar-buffer-groups-function nil)
-(setq tabbar-separator '(1.0))
-
-(dolist (btn '(tabbar-buffer-home-button
-               tabbar-scroll-left-button
-               tabbar-scroll-right-button))
-  (set btn (cons (cons "" nil)
-                 (cons "" nil))))
-
-(set-face-attribute
- 'tabbar-default nil
- :background "brightblack"
- :foreground "white"
- )
-(set-face-attribute
- 'tabbar-selected nil
- :background "#B696F3"
- :foreground "brightwhite"
- :box nil
- )
-(set-face-attribute
- 'tabbar-modified nil
- :background "#F8F7F3"
- :foreground "brightwhite"
- :box nil
- )
-(global-set-key (kbd "<f8>") 'tabbar-forward-tab)
-(global-set-key (kbd "<f7>") 'tabbar-backward-tab)
-
-;; which-key
-(require 'which-key)
-(which-key-mode)
-
-;; neotree setting
-(require 'all-the-icons)
-(require 'neotree)
-;; 隠しファイルをデフォルトで表示
-(setq neo-show-hidden-files t)
-;; cotrol + q でneotreeを起動
-(global-set-key [f9] 'neotree-toggle)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-
-;; (golden-rati
-(golden-ratio-mode 1)
-(setq golden-ratio-exclude-modes '(calendar-mode))
-(setq golden-ratio-exclude-buffer-names '(" *Org tags*" " *Org todo*"))
-(setq golden-ratio-exclude-buffer-regexp '("\\*anything" "\\*helm"))
-(setq golden-ratio-extra-commands
-      '(windmove-left windmove-right windmove-down windmove-up))
-
-;; doom-modeline
+;; doom-modeline設定
 (require 'doom-modeline)
 (doom-modeline-mode 1)
 (setq doom-modeline-icon t)
 
-;; nyan-mode
+;; nyan-mode設定
 (require 'nyan-mode)
 (nyan-mode)
 (nyan-start-animation)
 
-;; markdown-mode
-(use-package markdown-mode
-  :ensure t
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
-
-;; dashboard
-(require 'dashboard)
-(setq dashboard-startup-banner "~/.emacs.d/images/exite.gif")
-(setq dashboard-banner-logo-title
-  (concat "GNU Emacs " emacs-version " kernel "
-    (car (split-string (shell-command-to-string "uname -r")))  " x86_64 Mac OS X "
-    (car(split-string (shell-command-to-string "sw_vers -productVersion") "-"))
-  )
-)
-
-(setq dashboard-items '((recents  . 15)
-       (bookmarks . 5)))
-
-(setq dashboard-set-heading-icons t)
-(setq dashboard-set-file-icons t)
-(dashboard-modify-heading-icons '((recents . "file-text")
-                                  (bookmarks . "book")))
-(dashboard-setup-startup-hook)
-
-;; projectile
-
-
-;;reload
-(global-set-key [f12] 'eval-buffer)
-(setq ring-bell-function 'ignore)
-(setq inhibit-startup-message t)
-
-;; ---------------  ;;
-
-;; (projectile-mode +1)
-;; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
+;; rainbow-delimiters設定
 (add-hook 'foo-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
-;; whitespace
-(require 'whitespace);;
-;; (setq whitespace-line-column 80)
-(setq whitespace-style
-      '(face
-        trailing
-        tabs
-        spaces
-        lines-tail
-        newline
-        empty
-        space-before-tab
-        space-after-tab
-        space-mark
-        tab-mark
-        newline-mark))
-(setq whitespace-display-mappings
-      '((space-mark   ?\u3000 [?□])
-        (newline-mark ?\n     [?\xAB ?\n])
-        ))
-(setq whitespace-space-regexp "\\(\u3000+\\)")
-(setq whitespace-global-modes '(not dired-mode tar-mode))
-(setq whitespace-action '(auto-cleanup))
+;; ivy設定
+(require 'ivy)
+(require 'all-the-icons-ivy)
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(setq ivy-height 24)
+(setq ivy-extra-directories nil)
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-plus)))
 
-(global-whitespace-mode 1)
+;; counsel設定
+(require 'counsel)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(setq counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
 
+;; swiper設定
+(global-set-key "\C-s" 'swiper)
+(setq swiper-include-line-number-in-search t) ;; line-numberでも検索可能
 
-(global-linum-mode 1)
-(setq linum-format "%3d ")
-
-(setq-default tab-width 2 indent-tabs-mode nil)
-
-(setq-default line-spacing 2)
-
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-
-;; emmet
-(require 'emmet-mode)
-(add-hook 'sgml-mode-hook 'emmet-mode) ;; マークアップ言語全部で使う
-(add-hook 'css-mode-hook  'emmet-mode) ;; CSSにも使う
-(add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent はスペース2個
-(eval-after-load "emmet-mode"
-  '(define-key emmet-mode-keymap (kbd "C-j") nil)) ;; C-j は newline のままにしておく
-(keyboard-translate ?\C-e ?\H-e) ;;C-e と Tabの被りを回避
-(define-key emmet-mode-keymap (kbd "H-e") 'emmet-expand-line) ;; C-e で展開
-
-;; company
+;; company設定
 (require 'company)
 (global-company-mode) ; 全バッファで有効にする
 (setq company-transformers '(company-sort-by-backend-importance)) ;; ソート順
@@ -228,8 +129,37 @@
 (define-key company-active-map (kbd "C-f") 'company-complete-selection) ;; C-fで候補を設定
 (define-key emacs-lisp-mode-map (kbd "C-M-i") 'company-complete) ;; 各種メジャーモードでも C-M-iで company-modeの補完を使う
 
-;; ウィンドウ移動
-(global-set-key (kbd "C-c <left>")  'windmove-left)
-(global-set-key (kbd "C-c <down>")  'windmove-down)
-(global-set-key (kbd "C-c <up>")    'windmove-up)
-(global-set-key (kbd "C-c <right>") 'windmove-right)
+;; yasnippet設定
+(require 'yasnippet)
+(require 'yasnippet-snippets)
+(yas-global-mode 1)
+
+;; company yasnippet 連携
+(defvar company-mode/enable-yas t
+  "Enable yasnippet for all backends.")
+(defun company-mode/backend-with-yas (backend)
+  (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+      backend
+    (append (if (consp backend) backend (list backend))
+            '(:with company-yasnippet))))
+(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+
+;; emmet-mode設定
+(require 'emmet-mode)
+;; emmet
+(require 'emmet-mode)
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; マークアップ言語全部で使う
+(add-hook 'css-mode-hook  'emmet-mode) ;; CSSにも使う
+(add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent はスペース2個
+(eval-after-load "emmet-mode"
+  '(define-key emmet-mode-keymap (kbd "C-j") nil)) ;; C-j は newline のままにしておく
+(keyboard-translate ?\C-e ?\H-e) ;;C-e と Tabの被りを回避
+(define-key emmet-mode-keymap (kbd "H-e") 'emmet-expand-line) ;; C-e で展開
+
+;; neotree設定
+(require 'neotree)
+(setq neo-theme 'ascii) ;; icon, classic等もあるよ！
+(setq neo-persist-show t) ;; delete-other-window で neotree ウィンドウを消さない
+(setq neo-smart-open t) ;; neotree ウィンドウを表示する毎に current file のあるディレクトリを表示する
+(setq neo-smart-open t)
+(global-set-key "\C-q" 'neotree-toggle)
