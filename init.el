@@ -43,6 +43,8 @@
 
 ;;dashboard
 (straight-use-package 'dashboard)
+(dashboard-setup-startup-hook)
+
 (setq dashboard-startup-banner "~/.emacs.d/images/exite.gif")
 (setq dashboard-banner-logo-title
   (concat "GNU Emacs " emacs-version " kernel "
@@ -54,6 +56,13 @@
 (setq dashboard-set-heading-icons t)
 (setq dashboard-set-file-icons t)
 (dashboard-setup-startup-hook)
+
+;; iflipb
+(straight-use-package 'iflipb)
+(setq iflipb-wrap-around t)
+(setq iflipb-ignore-buffers (list "^[*]" "^magit"))
+(global-set-key (kbd "C-<tab>") 'iflipb-next-buffer)
+(global-set-key (kbd "C-S-<tab>") 'iflipb-previous-buffer)
 
 ;;doom-themes
 (straight-use-package 'doom-themes)
