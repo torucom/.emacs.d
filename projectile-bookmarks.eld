@@ -1,1 +1,0 @@
-("~/Documents/railsApps/expend2019/" "~/.emacs.d/" "~/Documents/railsApps/payments/")

@@ -20,7 +20,11 @@ tramp
 /eshell/lastdir
 
 # elpa packages
-# /elpa/
+/elpa/
+/straight/
+
+/bak/
+/tmp/
 
 # reftex files
 *.rel
