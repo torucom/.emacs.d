@@ -22,7 +22,7 @@
 (setq delete-old-versions t) ;;上記外を削除
 (setq create-lockfiles nil) ;;ロックファイルは作成しない
 
-(setq-default line-spacing 2) ;;行間調整
+(setq-default line-spacing 1) ;;行間調整
 (setq-default indent-tabs-mode nil) ;;タブではなくスペース
 (setq tab-width 2) ; タブではスペース2
 (setq ring-bell-function 'ignore) ;;アラートのベルを消す
@@ -40,6 +40,10 @@
 (global-set-key (kbd "C-c <right>") 'windmove-right)
 
 ;;---------------------------------------------------------------------------;;
+
+;; exec-path-from-shell(EmacsでShellのPATHを引き継ぐ)
+(straight-use-package 'exec-path-from-shell)
+(exec-path-from-shell-initialize)
 
 ;;dashboard
 (straight-use-package 'dashboard)
@@ -142,6 +146,13 @@
             '(:with company-yasnippet))))
 (setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
 
+;; js2-mode whith tern ,company tern
+(straight-use-package 'js2-mode)
+(straight-use-package 'company-tern)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-hook 'js2-mode-hook 'tern-mode)
+(add-to-list 'company-backends 'company-tern)
+
 ;; highlight-indent-guides
 (straight-use-package 'highlight-indent-guides)
 (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
@@ -150,19 +161,21 @@
 ;; web-mode
 (straight-use-package 'web-mode)
 (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-(defun web-mode-hook ()
-  (setq web-mode-html-offset   2)
-  (setq web-mode-css-offset    2)
-  (setq web-mode-script-offset 2)
-  (setq indent-tabs-mode nil)
-  (setq tab-width 2))
-(add-hook 'web-mode-hook 'web-mode-hook)
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-markup-indent-offset 2)
+)
+(add-hook 'web-mode-hook  'my-web-mode-hook)
 
 ;;emmet-mode
 (straight-use-package 'emmet-mode)
-(add-hook 'sgml-mode-hook 'emmet-mode) ;; マークアップ言語全部で使う
+(add-hook 'web-mode-hook 'emmet-mode) ;; マークアップ言語全部で使う
 (add-hook 'css-mode-hook  'emmet-mode) ;; CSSにも使う
 (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent はスペース2個
+
 (with-eval-after-load 'emmet-mode
   (puthash "html:4s" "!!!4s+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
   (puthash "html:4t" "!!!4t+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
