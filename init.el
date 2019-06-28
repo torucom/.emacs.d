@@ -11,6 +11,9 @@
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
+
 (custom-set-variables '(tool-bar-mode nil)) ;;ツールバー非表示
 
 ;; 自動作成するファイルの設定
@@ -30,7 +33,8 @@
 (global-hl-line-mode t) ;; カーソルのある行をハイライト\
 (electric-pair-mode 1);; 閉じカッコ挿入
 (scroll-bar-mode 0) ;;スクロールバー非表示
-(blink-cursor-mode 0) ;;カーソル点滅オフ
+(blink-cursor-mode 1) ;;カーソル点滅オフ
+(add-to-list 'default-frame-alist '(cursor-type . bar))
 (global-set-key [f12] 'eval-buffer) ;;F12でeval-buffer
 
 ;; ウィンドウ移動
@@ -39,167 +43,253 @@
 (global-set-key (kbd "C-c <up>")    'windmove-up)
 (global-set-key (kbd "C-c <right>") 'windmove-right)
 
+
+;;---------------------------------------------------------------------------;;
+;;  _    _ _______ _____ _      _____ _________     __
+;; | |  | |__   __|_   _| |    |_   _|__   __\ \   / /
+;; | |  | |  | |    | | | |      | |    | |   \ \_/ / 
+;; | |  | |  | |    | | | |      | |    | |    \   /  
+;; | |__| |  | |   _| |_| |____ _| |_   | |     | |   
+;;  \____/   |_|  |_____|______|_____|  |_|     |_|   
 ;;---------------------------------------------------------------------------;;
 
-;; exec-path-from-shell(EmacsでShellのPATHを引き継ぐ)
-(straight-use-package 'exec-path-from-shell)
+;; exec-path-from-shell
+(use-package exec-path-from-shell)
 (exec-path-from-shell-initialize)
 
-;;dashboard
-(straight-use-package 'dashboard)
-(dashboard-setup-startup-hook)
-
-(setq dashboard-startup-banner "~/.emacs.d/images/exite.gif")
-(setq dashboard-banner-logo-title
-  (concat "GNU Emacs " emacs-version " kernel "
-    (car (split-string (shell-command-to-string "uname -r")))  " x86_64 Mac OS X "
-    (car(split-string (shell-command-to-string "sw_vers -productVersion") "-"))
-  )
-)
-(setq dashboard-items '((recents  . 15)))
-(setq dashboard-set-heading-icons t)
-(setq dashboard-set-file-icons t)
-(dashboard-setup-startup-hook)
-
 ;; iflipb
-(straight-use-package 'iflipb)
-(setq iflipb-wrap-around t)
-(setq iflipb-ignore-buffers (list "^[*]" "^magit"))
-(global-set-key (kbd "C-<tab>") 'iflipb-next-buffer)
-(global-set-key (kbd "C-S-<tab>") 'iflipb-previous-buffer)
-
-;;doom-themes
-(straight-use-package 'doom-themes)
-(setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-      doom-themes-enable-italic t) ; if nil, italics is universally disabled
-(load-theme 'doom-Iosvkem t)
-(doom-themes-neotree-config)
-(doom-themes-org-config)
-
-;;doom-modeline
-(straight-use-package 'doom-modeline)
-(doom-modeline-mode 1)
-(setq doom-modeline-icon t)
-
-;;nyan-mode
-(straight-use-package 'nyan-mode)
-(nyan-mode)
-(nyan-start-animation)
-
-;;neotree
-(straight-use-package 'neotree)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-(setq neo-persist-show t)
-(setq neo-smart-open t) 
-(setq neo-smart-open t)
-(global-set-key "\C-q" 'neotree-toggle)
+(use-package iflipb
+  :init
+  (setq iflipb-wrap-around t)
+  (setq iflipb-ignore-buffers (list "^[*]" "^magit"))
+  :bind (("C-<tab>" . iflipb-next-buffer)
+         ("C-S-<tab>" . iflipb-previous-buffer)))
 
 ;; ivy
-(straight-use-package 'ivy)
-(straight-use-package 'all-the-icons-ivy)
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(setq ivy-height 24)
-(setq ivy-extra-directories nil)
-(setq ivy-re-builders-alist '((t . ivy--regex-plus)))
+(use-package all-the-icons-ivy)
+(use-package ivy
+  :init
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-height 24)
+  (setq ivy-extra-directories nil)
+  (setq ivy-re-builders-alist '((t . ivy--regex-plus))))
+  :config
+  (ivy-mode 1)
+  
+;; counsel
+(use-package counsel
+  :config
+  (setq swiper-include-line-number-in-search t)
+  :bind (("M-x" . counsel-M-x)
+         ("C-x C-f" . counsel-find-file)
+         ("C-s" . swiper)))
 
-;; counsel設定
-(straight-use-package 'counsel)
-(global-set-key (kbd "M-x") 'counsel-M-x)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(setq counsel-find-file-ignore-regexp (regexp-opt '("./" "../")))
-(global-set-key "\C-s" 'swiper)
-(setq swiper-include-line-number-in-search t)
+;; projectile
+(use-package projectile
+  :config
+  (projectile-global-mode +1)
+  (setq projectile-enable-caching t))
 
-;; company設定
-(straight-use-package 'company)
-(global-company-mode) ; 全バッファで有効にする
-(setq company-transformers '(company-sort-by-backend-importance)) ;; ソート順
-(setq company-idle-delay 0) ; デフォルトは0.5
-(setq company-minimum-prefix-length 3) ; デフォルトは4
-(setq company-selection-wrap-around t) ; 候補の一番下でさらに下に行こうとすると一番上に戻る
-(setq completion-ignore-case t)
-(setq company-dabbrev-downcase nil)
-(global-set-key (kbd "C-M-i") 'company-complete)
-(define-key company-active-map (kbd "C-n") 'company-select-next) ;; C-n, C-pで補完候補を次/前の候補を選択
-(define-key company-active-map (kbd "C-p") 'company-select-previous)
-(define-key company-search-map (kbd "C-n") 'company-select-next)
-(define-key company-search-map (kbd "C-p") 'company-select-previous)
-(define-key company-active-map (kbd "C-s") 'company-filter-candidates) ;; C-sで絞り込む
-(define-key company-active-map (kbd "C-i") 'company-complete-selection) ;; TABで候補を設定
-(define-key company-active-map [tab] 'company-complete-selection) ;; TABで候補を設定
-(define-key company-active-map (kbd "C-f") 'company-complete-selection) ;; C-fで候補を設定
-(define-key emacs-lisp-mode-map (kbd "C-M-i") 'company-complete) ;; 各種メジャーモードでも C-M-iで company-modeの補完を使う
+;; ounsel-projectile
+(use-package counsel-projectile
+  :bind (
+    ("C-c p f" . counsel-projectile-find-file) ;; Switch project
+    :map projectile-mode-map
+    ("C-c p a" . projectile-command-map)))
+
+;; company
+(use-package company
+    :init
+    (setq company-selection-wrap-around t)
+    :config
+    (global-company-mode)
+    :bind (("C-M-i" . company-complete)
+      :map company-active-map
+          ("M-n" . nil)
+          ("M-p" . nil)
+          ("C-n" . company-select-next)
+          ("C-p" . company-select-previous)
+          ("C-h" . nil)
+          ("<tab>" . company-complete-selection)))
 
 ;;yasnippet
-(straight-use-package 'yasnippet)
-(straight-use-package 'yasnippet-snippets)
-(yas-global-mode 1)
-
-;; company with yasnippet
-(defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-(defun company-mode/backend-with-yas (backend)
-  (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-      backend
-    (append (if (consp backend) backend (list backend))
-            '(:with company-yasnippet))))
-(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-
-;; js2-mode whith tern ,company tern
-(straight-use-package 'js2-mode)
-(straight-use-package 'company-tern)
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-(add-hook 'js2-mode-hook 'tern-mode)
-(add-to-list 'company-backends 'company-tern)
+(use-package yasnippet)
+(use-package yasnippet-snippets
+  :config
+  (yas-global-mode 1))
 
 ;; highlight-indent-guides
-(straight-use-package 'highlight-indent-guides)
-(add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
-(setq highlight-indent-guides-method 'character)
+(use-package highlight-indent-guides
+  :init
+  (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+  :config
+  (setq highlight-indent-guides-method 'character))
 
-;; web-mode
-(straight-use-package 'web-mode)
-(add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-(defun my-web-mode-hook ()
-  "Hooks for Web mode."
-  (setq web-mode-markup-indent-offset 2)
-)
-(add-hook 'web-mode-hook  'my-web-mode-hook)
+;; js2-mode whith tern ,company tern
+(use-package company-tern)
+(use-package js2-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  (add-hook 'js2-mode-hook 'tern-mode)
+  (add-to-list 'company-backends 'company-tern))
+
+;;web-mode
+(use-package web-mode
+  :commands web-mode
+  :mode ("\\.hbs\\'"
+         "\\.jsx\\'"
+         "\\.vue\\'"
+         "/\\([Vv]iews\\|[Hh]tml\\|[Tt]emplates\\)/.*\\.php\\'"
+         "\\.erb\\'"
+         "\\.blade\\.php\\'")
+  :config
+  (setq sgml-basic-offset 2)
+  (setq web-mode-code-indent-offset 2
+        web-mode-css-indent-offset 2
+        web-mode-markup-indent-offset 2
+        web-mode-attr-indent-offset 2
+        web-mode-enable-current-element-highlight t)
+
+  (add-to-list 'web-mode-indentation-params '("lineup-args" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-concats" . nil))
+  (add-to-list 'web-mode-indentation-params '("lineup-calls" . nil))
+
+  (setq web-mode-ac-sources-list
+        '(("php" . (ac-source-yasnippet))
+          ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
+          ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
+
+  (setq web-mode-content-types-alist
+        '(("jsx" . "/\\(container\\|component\\)[s]?/.*\\.js[x]?\\'")))
+
+  (subword-mode)
+  (emmet-mode)
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+  (add-hook 'web-mode-before-auto-complete-hooks
+            '(lambda ()
+               (let ((web-mode-cur-language (web-mode-language-at-pos)))
+                 (if (string= web-mode-cur-language "php")
+                     (yas-activate-extra-mode 'php-mode)
+                   (yas-deactivate-extra-mode 'php-mode))
+                 (if (string= web-mode-cur-language "javascript")
+                     (yas-activate-extra-mode 'js2-mode)
+                   (yas-deactivate-extra-mode 'js2-mode))
+                 (if (string= web-mode-cur-language "css")
+                     (setq emmet-use-css-transform t)
+                   (setq emmet-use-css-transform nil)))))
+
+  (add-hook 'html-mode-hook 'web-mode))
 
 ;;emmet-mode
-(straight-use-package 'emmet-mode)
-(add-hook 'web-mode-hook 'emmet-mode) ;; マークアップ言語全部で使う
-(add-hook 'css-mode-hook  'emmet-mode) ;; CSSにも使う
-(add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2))) ;; indent はスペース2個
-
-(with-eval-after-load 'emmet-mode
-  (puthash "html:4s" "!!!4s+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
-  (puthash "html:4t" "!!!4t+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
-  (puthash "html:5" "!!!+doc[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
-  (puthash "html:xml" "html[xmlns=http://www.w3.org/1999/xhtml]" (gethash "aliases" (gethash "html" emmet-snippets)))
-  (puthash "html:xs" "!!!xs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
-)
+(use-package emmet-mode
+  :diminish (emmet-mode . "ε")
+  :bind* (("C-)" . emmet-next-edit-point)
+          ("C-(" . emmet-prev-edit-point))
+  :commands (emmet-mode
+             emmet-next-edit-point
+             emmet-prev-edit-point)
+  :init
+  (setq emmet-indentation 2)
+  (setq emmet-move-cursor-between-quotes t)
+  :bind (
+  :map emmet-mode-keymap
+    ("C-j" . nil)
+    ("C-e" . emmet-expand-line)))
+  :config
+  (add-hook 'sgml-mode-hook 'emmet-mode)
+  (add-hook 'web-mode-hook 'emmet-mode)
+  (add-hook 'css-mode-hook  'emmet-mode)
+  (with-eval-after-load 'emmet-mode
+    (puthash "html:4s" "!!!4s+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
+    (puthash "html:4t" "!!!4t+doc4[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
+    (puthash "html:5" "!!!+doc[lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
+    (puthash "html:xml" "html[xmlns=http://www.w3.org/1999/xhtml]" (gethash "aliases" (gethash "html" emmet-snippets)))
+    (puthash "html:xs" "!!!xs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=ja]" (gethash "aliases" (gethash "html" emmet-snippets)))
+  )
 
 ;; sass-mode
-(straight-use-package 'scss-mode)
-(add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
-(defun scss-custom ()
-  "scss-mode-hook"
-  (and
-   (set (make-local-variable 'css-indent-offset) 2)
-   (set (make-local-variable 'scss-compile-at-save) nil)))
-(add-hook 'scss-mode-hook '(lambda() (scss-custom)))
+(use-package scss-mode
+  :init
+  (add-to-list 'auto-mode-alist '("\\.scss$" . scss-mode))
+  (defun scss-custom ()
+    "scss-mode-hook"
+    (and
+     (set (make-local-variable 'css-indent-offset) 2)
+     (set (make-local-variable 'scss-compile-at-save) nil)))
+  (add-hook 'scss-mode-hook '(lambda() (scss-custom))))
 
 ;; php-mode
-(straight-use-package 'php-mode)
-(straight-use-package 'company-php)
+(use-package php-mode)
+(use-package company-php
+:init
 (add-hook 'php-mode-hook
-          '(lambda ()
-             (company-mode t)
-             (ac-php-core-eldoc-setup)
-             (make-local-variable 'company-backends)
-             (add-to-list 'company-backends 'company-ac-php-backend)))
+  '(lambda ()
+     (company-mode t)
+     (ac-php-core-eldoc-setup)
+     (make-local-variable 'company-backends)
+     (add-to-list 'company-backends 'company-ac-php-backend))))
+
+
+;;---------------------------------------------------------------------------;;
+;; __      _______ ________          _______ 
+;; \ \    / /_   _|  ____\ \        / / ____|
+;;  \ \  / /  | | | |__   \ \  /\  / / (___  
+;;   \ \/ /   | | |  __|   \ \/  \/ / \___ \ 
+;;    \  /   _| |_| |____   \  /\  /  ____) |
+;;     \/   |_____|______|   \/  \/  |_____/ 
+;;---------------------------------------------------------------------------;;
+
+(straight-use-package
+ '(icons-in-terminal :type git :host github :repo "seagle0128/icons-in-terminal.el"))
+
+;;dashboard
+(use-package dashboard
+  :init
+  (setq dashboard-startup-banner "~/.emacs.d/images/exite.gif")
+  (setq dashboard-banner-logo-title
+    (concat "GNU Emacs " emacs-version " kernel "
+      (car (split-string (shell-command-to-string "uname -r")))  " x86_64 Mac OS X "
+      (car(split-string (shell-command-to-string "sw_vers -productVersion") "-"))
+    )
+  )
+  (setq dashboard-items '((recents  . 5)
+                         (projects . 5)))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+
+  :config
+  (dashboard-setup-startup-hook))
+
+;;doom-themes
+(use-package doom-themes
+  :init
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  :config
+  (doom-themes-neotree-config)
+  (doom-themes-org-config))
+  (load-theme 'doom-Iosvkem t)
+
+;;doom-modeline
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-icon t)
+  :config
+  (doom-modeline-mode 1))
+
+;;nyan-mode
+(use-package nyan-mode
+  :init
+  (nyan-mode)
+  (nyan-start-animation))
+
+;;neotree
+(use-package neotree
+  :init
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  (setq neo-persist-show t)
+  (setq neo-smart-open t) 
+  (setq neo-smart-open t)
+  :bind ("C-q" . neotree-toggle))

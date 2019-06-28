@@ -1,0 +1,1 @@
+("~/Documents/railsApps/beq_expend/" "~/Documents/railsApps/expend2019/" "~/.emacs.d/" "~/Documents/MAMP/servers/mocurot.jp/cms/wp-content/themes/mocurog/")
